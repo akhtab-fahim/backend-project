@@ -1,21 +1,17 @@
 import mongoose from "mongoose";
-import { DB_NAME } from "../constants.js";
-import dotenv from 'dotenv';
-dotenv.config({path : "./env"});
+import dotenv from "dotenv";
 
-const connectDB = async ()=> {
+dotenv.config({ path: "./.env" });
+
+const connectDB = async () => {
     try {
-      const connectionInstance = await mongoose.connect(`${process.env.MONGODB_URI}/${DB_NAME}` , {
-        useNewUrlParser: true,
-        useUnifiedTopology: true
-      });
-      console.log(`\n MONGODB connected DB HOST ${connectionInstance.connection.host}`);
-      
-      
+        const connectionInstance = await mongoose.connect(`${process.env.MONGODB_URI}/videostreamingplatform1`);
+
+        console.log(`MONGODB connected: ${connectionInstance.connection.host}`);
     } catch (error) {
-        console.log(error + "MONGODB connection error");
-        
+        console.error(`MONGODB connection error: ${error.message}`);
+        process.exit(1); // Exit process with failure
     }
-}
+};
 
 export default connectDB;
