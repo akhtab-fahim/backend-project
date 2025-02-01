@@ -1,9 +1,9 @@
-import mongoose, { mongo, Mongoose } from "mongoose"
-import jwt frmo "jsonwebtoken"
+import mongoose, { mongo, Mongoose } from "mongoose";
+import jwt frmo "jsonwebtoken";
 
 import bycrypt from "bcrypt"
 
-const userSChema = new mongoose.Schema({
+const userSchema = new mongoose.Schema({
 
     username : {
         type : String,
@@ -52,7 +52,7 @@ const userSChema = new mongoose.Schema({
 },{timestamps : true})
 
 //pre hook
-userSChema.pre("save", async function (next) {
+userSchema.pre("save", async function (next) {
     if(!this.isModified("password")) return next();
 
     this.password = bcrypt.hash(this.password, 10)
@@ -62,7 +62,7 @@ userSChema.pre("save", async function (next) {
 
 //methods 
 
-userSChema.methods.isPasswordCorrect = async function(password){
+userSchema.methods.isPasswordCorrect = async function(password){
     return await bcrypt.compare(password,this.password)
 }
 
@@ -91,4 +91,4 @@ userSchema.methods.generateRefreshToken = function(){
 }
 
 
-export const User = mongoose.model("User",userSChema)
+export const User = mongoose.model("User",userSchema)
