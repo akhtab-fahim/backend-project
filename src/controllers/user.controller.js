@@ -7,7 +7,7 @@ import { ApiResponse } from "../utils/ApiResponse.js"
 
 const registerUser = asyncHandler( async (req,res) => {
     const {fullname, email, username, password} = req.body
-    console.log(req.body)
+    // console.log(req.body)
 
     /* validation */
 
@@ -20,7 +20,7 @@ const registerUser = asyncHandler( async (req,res) => {
     }
     
     /* Check user already exists or not */
-    const existedUser = User.findOne({
+    const existedUser = await User.findOne({
         $or : [{ username },{ email }]
     })
     
@@ -28,13 +28,21 @@ const registerUser = asyncHandler( async (req,res) => {
         throw new ApiError(409,"User already existed")
     }
     
-    // console.log(req.files)
+    console.log(req.files)
+    if (!req.files || !req.files.avatar) {
+        console.error("req.files:", req.files); // Debug log
+        throw new ApiError(400, "Avatar file is required");
+    }
 
     const avatarLocalPath = req.files?.avatar[0]?.path;
 
     //optional chainning : if req.files exists then acces the avatar(first element of the arrat) if avatar[0] exits then access the path of that element
     
     const coverImageLocalPath = req.files?.coverImage[0]?.path;
+
+    // if(req.files && Array.isArray(req.files.coverImage) && req.files.coverImage.length > 0){
+    //     const coverImageLocalPath = req.files.coverImage[0].path;
+    // }
 
     if(!avatarLocalPath){
         throw new ApiError(400,"Avatar is required")
@@ -51,14 +59,18 @@ const registerUser = asyncHandler( async (req,res) => {
     const user = await User.create({
         fullname,
         avatar : avatar.url,
-        coverImage : coverImage?.url || "",
+        coverimage : coverImage?.url || "",
         email,
         password,
         username : username.toLowerCase()
     })
 
+//.select() specifies which fields should or should not be included in the query result.
+// The - sign before a field name (password, refreshToken) means exclude these fields.
+// Without the -, it would mean to include only the specified fields.
+
     const createdUser = await User.findById(user._id).select(
-        "-password -refreshToken" //kya kya nahi chahiye
+        "-password -refreshToken" 
     )
 
     if(!createdUser) {
