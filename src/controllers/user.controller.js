@@ -5,6 +5,23 @@ import { upload } from "../middlewares/multer.middlware.js"
 import { uploadOnCloud } from "../utils/cloudnary.js"
 import { ApiResponse } from "../utils/ApiResponse.js"
 
+const generateAccessRefreshTokens = async(userId)=> {
+    try {
+        const user = await User.findById(userId)
+        const accessToken = user.generateAccessToken()
+        const refreshToken = user.generateRefreshToken()
+
+        user.refreshToken = refreshToken
+        await user.save({validateBeforeSave : false})
+
+        return {accessToken,refreshToken}
+
+    } catch (error) {
+        throw new ApiError(500,"Somthing went wrong while generating refresh and access token ")
+    }
+
+}
+
 const registerUser = asyncHandler( async (req,res) => {
     const {fullname, email, username, password} = req.body
     // console.log(req.body)
@@ -83,5 +100,45 @@ const registerUser = asyncHandler( async (req,res) => {
 
 })
 
+const loginUser = asyncHandler(async (req,res) => {
+    const {email,username,password} = req.body
+    if(!username || !email){
+        throw new ApiError(400,"username or password one is must required")
+    }
 
-export { registerUser };
+    const user = await User.findOne({
+        $or: [{username},{email}]
+    })
+
+    if(!user){
+        throw new ApiError(404,"user doesnt exist")
+    }
+
+    const isPasswordValid = await user.isPasswordCorrect(password)
+    if(!isPasswordValid){
+        throw new ApiError(401,"password incorrect")
+    }
+
+    const {accessToken,refreshToken} = await generateAccessRefreshTokens(user._id)
+
+    const loggedUser = User.findOne(user._id).select("-password -refreshToken")
+
+    //cookies 
+
+    const options = {
+        httpOnly : true,
+        secure : true   //only can be modified within server
+    }
+
+    return res.status(200).cookie("accesToken",accessToken,options).cookie("refreshToken",refreshToken,options)
+    .json({
+        new ApiResponse(200,
+        {user : loggedUser,
+                accessToken,
+                refreshToken
+        },"User logged in Succesfully ")
+    })
+
+})  
+
+export { registerUser,loginUser };
