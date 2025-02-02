@@ -6,3 +6,5 @@ class ApiResponse{  //standradize api responses
         this.success = statusCode < 400 
     }
 }
+
+export {ApiResponse}
