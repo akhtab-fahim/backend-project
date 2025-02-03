@@ -133,12 +133,17 @@ const loginUser = asyncHandler(async (req,res) => {
     return res.status(200).cookie("accesToken",accessToken,options).cookie("refreshToken",refreshToken,options)
     .json({
         new ApiResponse(200,
-        {user : loggedUser,
+        {       user : loggedUser,
                 accessToken,
                 refreshToken
         },"User logged in Succesfully ")
     })
 
 })  
+
+
+const logOutUser = asyncHandler((req,res)=>{
+    User.findById
+})
 
 export { registerUser,loginUser };
