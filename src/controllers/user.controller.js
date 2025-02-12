@@ -5,6 +5,7 @@ import { upload } from "../middlewares/multer.middlware.js"
 import { uploadOnCloud } from "../utils/cloudnary.js"
 import { ApiResponse } from "../utils/ApiResponse.js"
 import jwt from "jsonwebtoken"
+import { Mongoose } from "mongoose"
 
 const generateAccessRefreshTokens = async(userId)=> {
     try {
@@ -362,4 +363,56 @@ return res.status(200).json(new ApiResponse(200,channel[0],"User channel fetched
 
 })
 
-export { registerUser,loginUser,logOutUser,refreshAccessToken,changeCurrentUser,getCurrentUser,updateAccoutDetails,updateUserAvatar,updateUserCoverImage,getUserChannelProfile };
+
+const getWatchHistory = asyncHandler(async(req,res)=>{
+
+    const user = await User.aggregate([
+        {
+            $match : {
+                _id : new Mongoose.Types.ObjectId(req.user._id) //here mongoose doesnt work so you have to write complete Id
+            } 
+
+        },
+        {
+            $lookup : {
+                from  : "videos",
+                localField: "watchHistory",
+                foreignField : "_id" ,
+                as : "watchHistory",
+                pipeline : [
+                    {
+                        $lookup : {
+                            from : "users",
+                            localField : "owner",
+                            foreignField : "_id",
+                            as : "owner",
+                            pipeline : [
+                                {
+                                    $project : {
+                                        fullname : 1,
+                                        username : 1,
+                                        avatar : 1
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        $addFields : {
+                            owner : {
+                                $firstn: "$owner"
+                            }
+                        }
+                    }
+                ]
+            }
+        }
+    ])
+
+    res.status(200).json(
+        new ApiResponse(200,user[0].watchHistory,"watch history getched ")
+    )
+
+})
+
+export { registerUser,loginUser,logOutUser,refreshAccessToken,changeCurrentUser,getCurrentUser,updateAccoutDetails,updateUserAvatar,updateUserCoverImage,getUserChannelProfile,getWatchHistory };
