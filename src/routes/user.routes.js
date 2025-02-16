@@ -2,6 +2,7 @@ import { Router } from "express";
 import { changeCurrentUser, getCurrentUser, getUserChannelProfile, getWatchHistory, loginUser, logOutUser, refreshAccessToken, registerUser, updateAccoutDetails, updateUserAvatar, updateUserCoverImage } from "../controllers/user.controller.js";
 import { upload } from "../middlewares/multer.middlware.js";
 import { verifyJWT } from "../middlewares/auth.middleware.js";
+import { publishAVideo } from "../controllers/video.controller.js";
 
 const router = Router();
 
@@ -29,6 +30,7 @@ router.route("/update-coverimage").patch(verifyJWT,upload.single("coverimage"),u
 router.route("/c/:username").get(verifyJWT,getUserChannelProfile);
 
 router.route("/history").get(verifyJWT,getWatchHistory);
+
 
 
 export default router;

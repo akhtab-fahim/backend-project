@@ -1,6 +1,6 @@
 import mongoose, {isValidObjectId} from "mongoose"
 import { Video } from "../models/video.models.js"
-import {User} from "../models/user.model.js"
+import {User} from "../models/user.models.js"
 import {ApiError} from "../utils/ApiError.js"
 import {ApiResponse} from "../utils/ApiResponse.js"
 import {asyncHandler} from "../utils/asynchandler.js"
@@ -215,6 +215,8 @@ const togglePublishStatus = asyncHandler(async (req, res) => {
     },{
         new : true
     })
+
+    res.status(200).json(new ApiResponse(200,{},"Publish Status Toggled "))
 })
 
 export {
