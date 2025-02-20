@@ -39,31 +39,24 @@ const getUserTweets = asyncHandler(async (req, res) => {
 
     const allUserTweets = await Tweet.aggregate([
         {
-            $match: { owner: new mongoose.Types.ObjectId(userId) }
+          $match: {
+            "owner" : new mongoose.Types.ObjectId(userId)
+          }
         },
         {
-            $lookup: {
-                from: "users",
-                localField: "owner",
-                foreignField: "_id",
-                as: "ownersDetails"
-            }
-        },
-        {
-            $project: {
-                content: 1,
-                owner: 1,
-                // "ownersDetails": 1
-            }
-        },
-    ]);
+          $project: {
+            content : 1
+          }
+        }
+      ])
 
-    if(!(allUserTweets.length == 0)){
+    if(allUserTweets.length == 0){
         throw new ApiError(401,"No value retireved ")
     }
 
     console.log(allUserTweets);
     
+    res.status(200).json(new ApiResponse(200,allUserTweets,"All User Tweets Retrieved "))
 
 })
 
