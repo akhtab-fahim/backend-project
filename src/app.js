@@ -30,6 +30,8 @@ import tweetRouter from "./routes/tweet.routes.js"
 import healthCheckRouter from "./routes/healthcheck.routes.js"
 import commentRouter from "./routes/comment.routes.js"
 import likeRouter from "./routes/like.routes.js"
+import videoRouter from "./routes/video.routes.js"
+import playlistRouter from "./routes/playlist.routes.js"
 
 //routes declaration
 app.use("/users", userRouter)
@@ -37,5 +39,7 @@ app.use("/tweets",tweetRouter)
 app.use("/check",healthCheckRouter)
 app.use("/comment",commentRouter)
 app.use("/like",likeRouter)
+app.use("/videos",videoRouter)
+app.use("/playlist",playlistRouter)
 
 export default app
